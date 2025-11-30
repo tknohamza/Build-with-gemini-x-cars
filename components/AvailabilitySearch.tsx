@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import { Search, CheckCircle, XCircle, RotateCcw } from 'lucide-react';
 import { Car, FuelType } from '../types';
-import Input from './Input';
-import Select from './Select';
-import Button from './Button';
 
 interface AvailabilitySearchProps {
   cars: Car[];
@@ -40,8 +37,8 @@ const AvailabilitySearch: React.FC<AvailabilitySearchProps> = ({ cars }) => {
   return (
     <div className="bg-slate-900 text-white p-6 rounded-2xl shadow-xl overflow-hidden relative h-full">
       {/* Decorative background elements */}
-      <div className="absolute top-0 left-0 w-64 h-64 bg-indigo-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -translate-x-1/2 -translate-y-1/2"></div>
-      <div className="absolute bottom-0 right-0 w-64 h-64 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 translate-x-1/2 translate-y-1/2"></div>
+      <div className="absolute top-0 start-0 w-64 h-64 bg-indigo-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -translate-x-1/2 -translate-y-1/2"></div>
+      <div className="absolute bottom-0 end-0 w-64 h-64 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 translate-x-1/2 translate-y-1/2"></div>
 
       <div className="relative z-10">
         <div className="flex items-center gap-2 mb-6 text-indigo-300">
@@ -50,7 +47,7 @@ const AvailabilitySearch: React.FC<AvailabilitySearchProps> = ({ cars }) => {
         </div>
         
         <p className="text-slate-400 mb-6 text-sm">
-          Recherchez dans l'inventaire pour vérifier si un véhicule spécifique est disponible selon la marque et le carburant.
+          Recherchez dans l'inventaire pour vérifier si une voiture spécifique est disponible par marque et carburant.
         </p>
 
         {result === null ? (
@@ -108,7 +105,7 @@ const AvailabilitySearch: React.FC<AvailabilitySearchProps> = ({ cars }) => {
                   <XCircle className="w-10 h-10" />
                 </div>
                 <h3 className="text-2xl font-bold text-white">Non disponible</h3>
-                <p className="text-red-300 mb-4">Désolé, aucun véhicule ne correspond à ces critères.</p>
+                <p className="text-red-300 mb-4">Désolé, aucune voiture ne correspond à ces critères.</p>
               </div>
             )}
             

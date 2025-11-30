@@ -54,12 +54,12 @@ const App: React.FC = () => {
               <CarIcon className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900 tracking-tight">Gestionnaire Auto Intelligent</h1>
-              <p className="text-xs text-slate-500 font-medium">Système de gestion numérique</p>
+              <h1 className="text-xl font-bold text-slate-900 tracking-tight">Gestion de Parc Auto</h1>
+              <p className="text-xs text-slate-500 font-medium">Système d'inventaire intelligent</p>
             </div>
           </div>
           <div className="text-sm text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
-             Total voitures : <span className="font-bold text-indigo-600">{cars.length}</span>
+             Total : <span className="font-bold text-indigo-600">{cars.length} véhicules</span>
           </div>
         </div>
       </header>
@@ -91,7 +91,7 @@ const App: React.FC = () => {
 
       {/* Simple Footer */}
       <footer className="border-t border-slate-200 mt-auto py-8 text-center text-slate-400 text-sm">
-        <p>&copy; {new Date().getFullYear()} Gestionnaire Auto Intelligent. Tous droits réservés.</p>
+        <p>&copy; {new Date().getFullYear()} Gestion de Parc Automobile. Tous droits réservés.</p>
       </footer>
     </div>
   );

@@ -1,6 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { Car, FuelType } from '../types';
-import { Car as CarIcon, Trash2, Pencil, Download, Upload } from 'lucide-react';
+import { Car as CarIcon, Trash2, Pencil, Download, Upload, Droplets, Zap, Leaf, Fuel } from 'lucide-react';
 import Button from './Button';
 
 interface CarListProps {
@@ -12,6 +12,29 @@ interface CarListProps {
 
 const CarList: React.FC<CarListProps> = ({ cars, onRemoveCar, onEditCar, onImportCars }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Statistics calculation
+  const stats = useMemo(() => {
+    const counts = {
+      total: cars.length,
+      [FuelType.Diesel]: 0,
+      [FuelType.Petrol]: 0,
+      [FuelType.Electric]: 0,
+      [FuelType.Hybrid]: 0,
+      other: 0
+    };
+
+    cars.forEach(car => {
+      const fuel = car.fuel as FuelType;
+      if (counts.hasOwnProperty(fuel)) {
+        counts[fuel]++;
+      } else {
+        counts.other++;
+      }
+    });
+
+    return counts;
+  }, [cars]);
 
   const handleExport = () => {
     if (cars.length === 0) return;
@@ -113,12 +136,7 @@ const CarList: React.FC<CarListProps> = ({ cars, onRemoveCar, onEditCar, onImpor
           if (brand && model && !isNaN(price)) {
             // Validate fuel against FuelType or keep string
             let validFuel = fuel;
-            const knownFuels = Object.values(FuelType) as string[];
-            if (!knownFuels.includes(fuel)) {
-               // Fallback or keep as string if your type allows it
-               // Assuming FuelType | string in types.ts
-            }
-
+            
             importedCars.push({
               id: crypto.randomUUID(),
               brand,
@@ -144,6 +162,14 @@ const CarList: React.FC<CarListProps> = ({ cars, onRemoveCar, onEditCar, onImpor
     };
     reader.readAsText(file);
   };
+
+  const getFuelColor = (fuel: string) => {
+    if (fuel === FuelType.Petrol) return 'bg-amber-100 text-amber-800';
+    if (fuel === FuelType.Diesel) return 'bg-slate-200 text-slate-700';
+    if (fuel === FuelType.Electric) return 'bg-emerald-100 text-emerald-800';
+    if (fuel === FuelType.Hybrid) return 'bg-blue-100 text-blue-800';
+    return 'bg-gray-100 text-gray-800';
+  }
 
   if (cars.length === 0) {
     return (
@@ -173,94 +199,127 @@ const CarList: React.FC<CarListProps> = ({ cars, onRemoveCar, onEditCar, onImpor
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-      <input 
-        type="file" 
-        ref={fileInputRef} 
-        onChange={handleFileChange} 
-        accept=".csv" 
-        className="hidden" 
-      />
-      <div className="p-6 border-b border-slate-100 flex flex-wrap gap-4 justify-between items-center">
-        <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-          <CarIcon className="w-5 h-5 text-indigo-600" />
-          Liste des voitures
-          <span className="bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded-full ms-2">
-            {cars.length}
-          </span>
-        </h2>
-        <div className="flex gap-2">
-          <Button 
-            variant="secondary" 
-            onClick={handleImportClick} 
-            className="text-sm py-2 px-3 flex items-center gap-2"
-            title="Importer depuis CSV"
-          >
-            <Upload className="w-4 h-4" />
-            Importer
-          </Button>
-          <Button 
-            variant="secondary" 
-            onClick={handleExport} 
-            className="text-sm py-2 px-3 flex items-center gap-2"
-            title="Exporter en CSV"
-          >
-            <Download className="w-4 h-4" />
-            Exporter
-          </Button>
+    <div className="space-y-6">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          onChange={handleFileChange} 
+          accept=".csv" 
+          className="hidden" 
+        />
+        <div className="p-6 border-b border-slate-100 flex flex-wrap gap-4 justify-between items-center">
+          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <CarIcon className="w-5 h-5 text-indigo-600" />
+            Liste des voitures
+          </h2>
+          <div className="flex gap-2">
+            <Button 
+              variant="secondary" 
+              onClick={handleImportClick} 
+              className="text-sm py-2 px-3 flex items-center gap-2"
+              title="Importer CSV"
+            >
+              <Upload className="w-4 h-4" />
+              Importer
+            </Button>
+            <Button 
+              variant="secondary" 
+              onClick={handleExport} 
+              className="text-sm py-2 px-3 flex items-center gap-2"
+              title="Exporter CSV"
+            >
+              <Download className="w-4 h-4" />
+              Exporter
+            </Button>
+          </div>
         </div>
-      </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-start">
-          <thead className="bg-slate-50 text-slate-500 text-sm">
-            <tr>
-              <th className="px-6 py-4 font-semibold text-start">Marque</th>
-              <th className="px-6 py-4 font-semibold text-start">Modèle</th>
-              <th className="px-6 py-4 font-semibold text-start">Carburant</th>
-              <th className="px-6 py-4 font-semibold text-start">Prix (DH)</th>
-              <th className="px-6 py-4 font-semibold text-start">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {cars.map((car) => (
-              <tr key={car.id} className="hover:bg-slate-50/80 transition-colors">
-                <td className="px-6 py-4 font-medium text-slate-900">{car.brand}</td>
-                <td className="px-6 py-4 text-slate-600">{car.model}</td>
-                <td className="px-6 py-4">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                    ${car.fuel === 'Essence' ? 'bg-amber-100 text-amber-800' : 
-                      car.fuel === 'Diesel' ? 'bg-slate-200 text-slate-700' :
-                      car.fuel === 'Électrique' ? 'bg-emerald-100 text-emerald-800' :
-                      'bg-blue-100 text-blue-800'}`}>
-                    {car.fuel}
-                  </span>
-                </td>
-                <td className="px-6 py-4 font-bold text-indigo-600">
-                  {new Intl.NumberFormat('fr-MA').format(car.price)}
-                </td>
-                <td className="px-6 py-4 flex items-center gap-2">
-                  <Button 
-                    variant="ghost" 
-                    className="!p-2 text-indigo-500 hover:bg-indigo-50 hover:text-indigo-600"
-                    onClick={() => onEditCar(car)}
-                    title="Modifier"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    className="!p-2 text-red-500 hover:bg-red-50 hover:text-red-600"
-                    onClick={() => onRemoveCar(car.id)}
-                    title="Supprimer"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </td>
+        {/* Statistics Dashboard placed inside the card under the title */}
+        <div className="bg-slate-50 border-b border-slate-100 p-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="bg-indigo-600 text-white p-3 rounded-lg shadow-sm flex flex-col items-center justify-center">
+              <span className="text-2xl font-bold">{stats.total}</span>
+              <span className="text-xs opacity-90 mt-1">Total voitures</span>
+            </div>
+            <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm flex flex-col items-center justify-center text-slate-700">
+              <div className="flex items-center gap-2 mb-1 text-slate-500">
+                <Droplets className="w-4 h-4" />
+                <span className="text-xs font-medium">{FuelType.Diesel}</span>
+              </div>
+              <span className="text-lg font-bold">{stats[FuelType.Diesel]}</span>
+            </div>
+            <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm flex flex-col items-center justify-center text-slate-700">
+              <div className="flex items-center gap-2 mb-1 text-slate-500">
+                <Fuel className="w-4 h-4" />
+                <span className="text-xs font-medium">{FuelType.Petrol}</span>
+              </div>
+              <span className="text-lg font-bold">{stats[FuelType.Petrol]}</span>
+            </div>
+            <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm flex flex-col items-center justify-center text-slate-700">
+              <div className="flex items-center gap-2 mb-1 text-slate-500">
+                <Zap className="w-4 h-4" />
+                <span className="text-xs font-medium">{FuelType.Electric}</span>
+              </div>
+              <span className="text-lg font-bold">{stats[FuelType.Electric]}</span>
+            </div>
+            <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm flex flex-col items-center justify-center text-slate-700">
+              <div className="flex items-center gap-2 mb-1 text-slate-500">
+                <Leaf className="w-4 h-4" />
+                <span className="text-xs font-medium">{FuelType.Hybrid}</span>
+              </div>
+              <span className="text-lg font-bold">{stats[FuelType.Hybrid]}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-start">
+            <thead className="bg-slate-50 text-slate-500 text-sm">
+              <tr>
+                <th className="px-6 py-4 font-semibold text-start">Marque</th>
+                <th className="px-6 py-4 font-semibold text-start">Modèle</th>
+                <th className="px-6 py-4 font-semibold text-start">Carburant</th>
+                <th className="px-6 py-4 font-semibold text-start">Prix (MAD)</th>
+                <th className="px-6 py-4 font-semibold text-start">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {cars.map((car) => (
+                <tr key={car.id} className="hover:bg-slate-50/80 transition-colors">
+                  <td className="px-6 py-4 font-medium text-slate-900">{car.brand}</td>
+                  <td className="px-6 py-4 text-slate-600">{car.model}</td>
+                  <td className="px-6 py-4">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium gap-1.5 ${getFuelColor(car.fuel)}`}>
+                      {car.fuel}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 font-bold text-indigo-600">
+                    {new Intl.NumberFormat('fr-MA').format(car.price)}
+                  </td>
+                  <td className="px-6 py-4 flex items-center gap-2">
+                    <Button 
+                      variant="ghost" 
+                      className="!p-2 text-indigo-500 hover:bg-indigo-50 hover:text-indigo-600"
+                      onClick={() => onEditCar(car)}
+                      title="Modifier"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="!p-2 text-red-500 hover:bg-red-50 hover:text-red-600"
+                      onClick={() => onRemoveCar(car.id)}
+                      title="Supprimer"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

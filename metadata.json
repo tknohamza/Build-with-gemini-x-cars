@@ -1,5 +1,5 @@
 {
-  "name": "Gestionnaire Auto Intelligent",
-  "description": "Interface moderne pour la gestion des stocks de voitures, la recherche et la disponibilité.",
+  "name": "Gestion de Parc Automobile",
+  "description": "Une interface moderne pour la gestion des stocks de voitures, la recherche et la disponibilité.",
   "requestFramePermissions": []
 }

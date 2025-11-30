@@ -40,13 +40,13 @@ const CarForm: React.FC<CarFormProps> = ({ onAddCar, onUpdateCar, editingCar, on
     setError(null);
 
     if (!brand.trim() || !model.trim() || !price.trim()) {
-      setError('Veuillez remplir tous les champs requis');
+      setError('Veuillez remplir tous les champs obligatoires');
       return;
     }
 
     const priceNum = parseFloat(price);
     if (isNaN(priceNum) || priceNum <= 0) {
-      setError('Veuillez entrer un prix valide (supérieur à 0)');
+      setError('Veuillez saisir un prix valide (supérieur à 0)');
       return;
     }
 
@@ -98,13 +98,13 @@ const CarForm: React.FC<CarFormProps> = ({ onAddCar, onUpdateCar, editingCar, on
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input 
             label="Marque" 
-            placeholder="Ex: Mercedes, Toyota..." 
+            placeholder="Ex: Peugeot, Renault..." 
             value={brand}
             onChange={(e) => setBrand(e.target.value)}
           />
           <Input 
             label="Modèle" 
-            placeholder="Ex: Classe C 2024" 
+            placeholder="Ex: 208, Clio..." 
             value={model}
             onChange={(e) => setModel(e.target.value)}
           />
@@ -118,7 +118,7 @@ const CarForm: React.FC<CarFormProps> = ({ onAddCar, onUpdateCar, editingCar, on
             onChange={(e) => setFuel(e.target.value as FuelType)}
           />
           <Input 
-            label="Prix (DH)" 
+            label="Prix (MAD)" 
             type="number"
             placeholder="0.00"
             value={price}
@@ -136,7 +136,7 @@ const CarForm: React.FC<CarFormProps> = ({ onAddCar, onUpdateCar, editingCar, on
 
         <div className="pt-2 flex gap-3">
           <Button type="submit" className="flex-1 md:flex-none">
-            {editingCar ? 'Enregistrer les modifications' : 'Ajouter à la liste'}
+            {editingCar ? 'Enregistrer' : 'Ajouter à la liste'}
           </Button>
           
           {editingCar && (
