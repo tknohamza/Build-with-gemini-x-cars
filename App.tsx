@@ -54,7 +54,7 @@ const App: React.FC = () => {
               <CarIcon className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900 tracking-tight">Gestion de Parc Auto</h1>
+              <h1 className="text-xl font-bold text-slate-900 tracking-tight font-['Outfit']">Gestion de Parc Auto (Beta)</h1>
               <p className="text-xs text-slate-500 font-medium">Système d'inventaire intelligent</p>
             </div>
           </div>
