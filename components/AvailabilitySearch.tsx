@@ -38,7 +38,7 @@ const AvailabilitySearch: React.FC<AvailabilitySearchProps> = ({ cars }) => {
   ];
 
   return (
-    <div className="bg-slate-900 text-white p-6 rounded-2xl shadow-xl overflow-hidden relative">
+    <div className="bg-slate-900 text-white p-6 rounded-2xl shadow-xl overflow-hidden relative h-full">
       {/* Decorative background elements */}
       <div className="absolute top-0 left-0 w-64 h-64 bg-indigo-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -translate-x-1/2 -translate-y-1/2"></div>
       <div className="absolute bottom-0 right-0 w-64 h-64 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 translate-x-1/2 translate-y-1/2"></div>
@@ -50,7 +50,7 @@ const AvailabilitySearch: React.FC<AvailabilitySearchProps> = ({ cars }) => {
         </div>
         
         <p className="text-slate-400 mb-6 text-sm">
-          Recherchez dans le stock pour vérifier la disponibilité d'un véhicule spécifique par marque et carburant.
+          Recherchez dans l'inventaire pour vérifier si un véhicule spécifique est disponible selon la marque et le carburant.
         </p>
 
         {result === null ? (
@@ -100,7 +100,7 @@ const AvailabilitySearch: React.FC<AvailabilitySearchProps> = ({ cars }) => {
                   <CheckCircle className="w-10 h-10" />
                 </div>
                 <h3 className="text-2xl font-bold text-white">Disponible !</h3>
-                <p className="text-green-300 mb-4">La voiture que vous recherchez est disponible en stock.</p>
+                <p className="text-green-300 mb-4">La voiture que vous recherchez est en stock.</p>
               </div>
             ) : (
               <div className="flex flex-col items-center gap-3">

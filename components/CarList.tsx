@@ -27,21 +27,21 @@ const CarList: React.FC<CarListProps> = ({ cars, onRemoveCar }) => {
         <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
           <CarIcon className="w-5 h-5 text-indigo-600" />
           Liste des voitures
-          <span className="bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded-full ml-2">
+          <span className="bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded-full ms-2">
             {cars.length}
           </span>
         </h2>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-left">
+        <table className="w-full text-start">
           <thead className="bg-slate-50 text-slate-500 text-sm">
             <tr>
-              <th className="px-6 py-4 font-semibold">Marque</th>
-              <th className="px-6 py-4 font-semibold">Modèle</th>
-              <th className="px-6 py-4 font-semibold">Carburant</th>
-              <th className="px-6 py-4 font-semibold">Prix (DH)</th>
-              <th className="px-6 py-4 font-semibold">Actions</th>
+              <th className="px-6 py-4 font-semibold text-start">Marque</th>
+              <th className="px-6 py-4 font-semibold text-start">Modèle</th>
+              <th className="px-6 py-4 font-semibold text-start">Carburant</th>
+              <th className="px-6 py-4 font-semibold text-start">Prix (DH)</th>
+              <th className="px-6 py-4 font-semibold text-start">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
