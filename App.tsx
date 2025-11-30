@@ -7,6 +7,7 @@ import { LayoutDashboard } from 'lucide-react';
 
 const App: React.FC = () => {
   const [cars, setCars] = useState<Car[]>([]);
+  const [editingCar, setEditingCar] = useState<Car | null>(null);
 
   const handleAddCar = (newCarData: Omit<Car, 'id' | 'addedAt'>) => {
     const newCar: Car = {
@@ -17,8 +18,26 @@ const App: React.FC = () => {
     setCars((prev) => [...prev, newCar]);
   };
 
+  const handleUpdateCar = (updatedCar: Car) => {
+    setCars((prev) => prev.map((car) => (car.id === updatedCar.id ? updatedCar : car)));
+    setEditingCar(null);
+  };
+
+  const handleEditCar = (car: Car) => {
+    setEditingCar(car);
+    // Smooth scroll to top to see form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCar(null);
+  };
+
   const handleRemoveCar = (id: string) => {
     setCars((prev) => prev.filter((car) => car.id !== id));
+    if (editingCar?.id === id) {
+      setEditingCar(null);
+    }
   };
 
   return (
@@ -45,13 +64,22 @@ const App: React.FC = () => {
         
         {/* Top Section: Form and Search side by side */}
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          <CarForm onAddCar={handleAddCar} />
+          <CarForm 
+            onAddCar={handleAddCar} 
+            onUpdateCar={handleUpdateCar}
+            editingCar={editingCar}
+            onCancelEdit={handleCancelEdit}
+          />
           <AvailabilitySearch cars={cars} />
         </section>
 
         {/* Bottom Section: List View */}
         <section>
-          <CarList cars={cars} onRemoveCar={handleRemoveCar} />
+          <CarList 
+            cars={cars} 
+            onRemoveCar={handleRemoveCar} 
+            onEditCar={handleEditCar}
+          />
         </section>
 
       </main>

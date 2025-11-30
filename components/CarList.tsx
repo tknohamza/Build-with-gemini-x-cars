@@ -1,14 +1,15 @@
 import React from 'react';
 import { Car } from '../types';
-import { Car as CarIcon, Trash2 } from 'lucide-react';
+import { Car as CarIcon, Trash2, Pencil } from 'lucide-react';
 import Button from './Button';
 
 interface CarListProps {
   cars: Car[];
   onRemoveCar: (id: string) => void;
+  onEditCar: (car: Car) => void;
 }
 
-const CarList: React.FC<CarListProps> = ({ cars, onRemoveCar }) => {
+const CarList: React.FC<CarListProps> = ({ cars, onRemoveCar, onEditCar }) => {
   if (cars.length === 0) {
     return (
       <div className="bg-white p-12 rounded-2xl shadow-sm border border-slate-100 text-center flex flex-col items-center justify-center text-slate-400">
@@ -61,7 +62,15 @@ const CarList: React.FC<CarListProps> = ({ cars, onRemoveCar }) => {
                 <td className="px-6 py-4 font-bold text-indigo-600">
                   {new Intl.NumberFormat('fr-MA').format(car.price)}
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 flex items-center gap-2">
+                  <Button 
+                    variant="ghost" 
+                    className="!p-2 text-indigo-500 hover:bg-indigo-50 hover:text-indigo-600"
+                    onClick={() => onEditCar(car)}
+                    title="Modifier"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </Button>
                   <Button 
                     variant="ghost" 
                     className="!p-2 text-red-500 hover:bg-red-50 hover:text-red-600"

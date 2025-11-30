@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { PlusCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { PlusCircle, Save, X } from 'lucide-react';
 import { FuelType, Car } from '../types';
 import Input from './Input';
 import Select from './Select';
@@ -7,14 +7,33 @@ import Button from './Button';
 
 interface CarFormProps {
   onAddCar: (car: Omit<Car, 'id' | 'addedAt'>) => void;
+  onUpdateCar: (car: Car) => void;
+  editingCar: Car | null;
+  onCancelEdit: () => void;
 }
 
-const CarForm: React.FC<CarFormProps> = ({ onAddCar }) => {
+const CarForm: React.FC<CarFormProps> = ({ onAddCar, onUpdateCar, editingCar, onCancelEdit }) => {
   const [brand, setBrand] = useState('');
   const [fuel, setFuel] = useState<FuelType>(FuelType.Diesel);
   const [model, setModel] = useState('');
   const [price, setPrice] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (editingCar) {
+      setBrand(editingCar.brand);
+      setFuel(editingCar.fuel as FuelType);
+      setModel(editingCar.model);
+      setPrice(editingCar.price.toString());
+      setError(null);
+    } else {
+      setBrand('');
+      setFuel(FuelType.Diesel);
+      setModel('');
+      setPrice('');
+      setError(null);
+    }
+  }, [editingCar]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,27 +50,48 @@ const CarForm: React.FC<CarFormProps> = ({ onAddCar }) => {
       return;
     }
 
-    onAddCar({
-      brand: brand.trim(),
-      fuel,
-      model: model.trim(),
-      price: priceNum,
-    });
-
-    // Reset form
-    setBrand('');
-    setModel('');
-    setPrice('');
-    // Keep fuel as is or reset to default
+    if (editingCar) {
+      onUpdateCar({
+        ...editingCar,
+        brand: brand.trim(),
+        fuel,
+        model: model.trim(),
+        price: priceNum,
+      });
+    } else {
+      onAddCar({
+        brand: brand.trim(),
+        fuel,
+        model: model.trim(),
+        price: priceNum,
+      });
+      // Reset form only on add
+      setBrand('');
+      setModel('');
+      setPrice('');
+    }
   };
 
   const fuelOptions = Object.values(FuelType).map((t) => ({ value: t, label: t }));
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 h-full">
-      <div className="flex items-center gap-2 mb-6 text-indigo-700">
-        <PlusCircle className="w-6 h-6" />
-        <h2 className="text-xl font-bold">Ajouter une voiture</h2>
+    <div className={`bg-white p-6 rounded-2xl shadow-sm border h-full transition-colors duration-300 ${editingCar ? 'border-indigo-200 ring-1 ring-indigo-100' : 'border-slate-100'}`}>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2 text-indigo-700">
+          {editingCar ? <Save className="w-6 h-6" /> : <PlusCircle className="w-6 h-6" />}
+          <h2 className="text-xl font-bold">
+            {editingCar ? 'Modifier la voiture' : 'Ajouter une voiture'}
+          </h2>
+        </div>
+        {editingCar && (
+          <button 
+            onClick={onCancelEdit}
+            className="text-slate-400 hover:text-slate-600 transition-colors"
+            title="Annuler"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -94,10 +134,16 @@ const CarForm: React.FC<CarFormProps> = ({ onAddCar }) => {
           </div>
         )}
 
-        <div className="pt-2">
-          <Button type="submit" className="w-full md:w-auto">
-            Ajouter à la liste
+        <div className="pt-2 flex gap-3">
+          <Button type="submit" className="flex-1 md:flex-none">
+            {editingCar ? 'Enregistrer les modifications' : 'Ajouter à la liste'}
           </Button>
+          
+          {editingCar && (
+            <Button type="button" variant="secondary" onClick={onCancelEdit} className="flex-1 md:flex-none">
+              Annuler
+            </Button>
+          )}
         </div>
       </form>
     </div>
