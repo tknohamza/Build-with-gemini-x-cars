@@ -1,30 +1,187 @@
-import React from 'react';
-import { Car } from '../types';
-import { Car as CarIcon, Trash2, Pencil } from 'lucide-react';
+import React, { useRef } from 'react';
+import { Car, FuelType } from '../types';
+import { Car as CarIcon, Trash2, Pencil, Download, Upload } from 'lucide-react';
 import Button from './Button';
 
 interface CarListProps {
   cars: Car[];
   onRemoveCar: (id: string) => void;
   onEditCar: (car: Car) => void;
+  onImportCars: (cars: Car[]) => void;
 }
 
-const CarList: React.FC<CarListProps> = ({ cars, onRemoveCar, onEditCar }) => {
+const CarList: React.FC<CarListProps> = ({ cars, onRemoveCar, onEditCar, onImportCars }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleExport = () => {
+    if (cars.length === 0) return;
+
+    // Define CSV headers
+    const headers = ["Marque", "Modèle", "Carburant", "Prix", "Date d'ajout"];
+    
+    // Convert cars data to CSV rows
+    const csvContent = [
+      headers.join(','),
+      ...cars.map(car => [
+        `"${car.brand.replace(/"/g, '""')}"`,
+        `"${car.model.replace(/"/g, '""')}"`,
+        `"${car.fuel}"`,
+        car.price,
+        `"${new Date(car.addedAt).toLocaleDateString('fr-FR')}"`
+      ].join(','))
+    ].join('\n');
+
+    // Create a blob and trigger download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `voitures_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const parseCSV = (text: string): string[][] => {
+    const rows: string[][] = [];
+    let currentRow: string[] = [];
+    let currentVal = '';
+    let inQuote = false;
+    
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i];
+      const nextChar = text[i+1];
+      
+      if (char === '"') {
+        if (inQuote && nextChar === '"') {
+          currentVal += '"';
+          i++; 
+        } else {
+          inQuote = !inQuote;
+        }
+      } else if (char === ',' && !inQuote) {
+        currentRow.push(currentVal);
+        currentVal = '';
+      } else if ((char === '\r' || char === '\n') && !inQuote) {
+        if (currentRow.length > 0 || currentVal) {
+          currentRow.push(currentVal);
+          rows.push(currentRow);
+        }
+        currentRow = [];
+        currentVal = '';
+        if (char === '\r' && nextChar === '\n') i++;
+      } else {
+        currentVal += char;
+      }
+    }
+    if (currentRow.length > 0 || currentVal) {
+      currentRow.push(currentVal);
+      rows.push(currentRow);
+    }
+    return rows;
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      if (!content) return;
+      
+      try {
+        const rows = parseCSV(content);
+        // Remove header
+        if (rows.length > 0) rows.shift();
+        
+        const importedCars: Car[] = [];
+        
+        rows.forEach(row => {
+          if (row.length < 4) return;
+          
+          const brand = row[0]?.trim();
+          const model = row[1]?.trim();
+          const fuel = row[2]?.trim();
+          const price = parseFloat(row[3]);
+          const dateStr = row[4]; // Optional
+          
+          if (brand && model && !isNaN(price)) {
+            // Validate fuel against FuelType or keep string
+            let validFuel = fuel;
+            const knownFuels = Object.values(FuelType) as string[];
+            if (!knownFuels.includes(fuel)) {
+               // Fallback or keep as string if your type allows it
+               // Assuming FuelType | string in types.ts
+            }
+
+            importedCars.push({
+              id: crypto.randomUUID(),
+              brand,
+              model,
+              fuel: validFuel,
+              price,
+              addedAt: dateStr ? new Date(dateStr) : new Date()
+            });
+          }
+        });
+
+        if (importedCars.length > 0) {
+          onImportCars(importedCars);
+        } else {
+          alert("Aucune voiture valide trouvée dans le fichier.");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Erreur lors de la lecture du fichier CSV.");
+      }
+      
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+    reader.readAsText(file);
+  };
+
   if (cars.length === 0) {
     return (
       <div className="bg-white p-12 rounded-2xl shadow-sm border border-slate-100 text-center flex flex-col items-center justify-center text-slate-400">
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          onChange={handleFileChange} 
+          accept=".csv" 
+          className="hidden" 
+        />
         <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
           <CarIcon className="w-8 h-8 opacity-50" />
         </div>
         <h3 className="text-lg font-semibold text-slate-600">Aucune voiture ajoutée</h3>
-        <p className="text-sm mt-1">Utilisez le formulaire ci-dessus pour ajouter des véhicules.</p>
+        <p className="text-sm mt-1 mb-6">Utilisez le formulaire ci-dessus pour ajouter des véhicules ou importez une liste.</p>
+        <Button 
+          variant="secondary" 
+          onClick={handleImportClick}
+          className="flex items-center gap-2"
+        >
+          <Upload className="w-4 h-4" />
+          Importer CSV
+        </Button>
       </div>
     );
   }
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-      <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        onChange={handleFileChange} 
+        accept=".csv" 
+        className="hidden" 
+      />
+      <div className="p-6 border-b border-slate-100 flex flex-wrap gap-4 justify-between items-center">
         <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
           <CarIcon className="w-5 h-5 text-indigo-600" />
           Liste des voitures
@@ -32,6 +189,26 @@ const CarList: React.FC<CarListProps> = ({ cars, onRemoveCar, onEditCar }) => {
             {cars.length}
           </span>
         </h2>
+        <div className="flex gap-2">
+          <Button 
+            variant="secondary" 
+            onClick={handleImportClick} 
+            className="text-sm py-2 px-3 flex items-center gap-2"
+            title="Importer depuis CSV"
+          >
+            <Upload className="w-4 h-4" />
+            Importer
+          </Button>
+          <Button 
+            variant="secondary" 
+            onClick={handleExport} 
+            className="text-sm py-2 px-3 flex items-center gap-2"
+            title="Exporter en CSV"
+          >
+            <Download className="w-4 h-4" />
+            Exporter
+          </Button>
+        </div>
       </div>
 
       <div className="overflow-x-auto">

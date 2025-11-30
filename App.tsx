@@ -40,6 +40,10 @@ const App: React.FC = () => {
     }
   };
 
+  const handleImportCars = (importedCars: Car[]) => {
+    setCars((prev) => [...prev, ...importedCars]);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       {/* Header */}
@@ -79,6 +83,7 @@ const App: React.FC = () => {
             cars={cars} 
             onRemoveCar={handleRemoveCar} 
             onEditCar={handleEditCar}
+            onImportCars={handleImportCars}
           />
         </section>
 
