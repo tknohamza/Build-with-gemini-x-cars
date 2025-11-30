@@ -3,7 +3,7 @@ import { Car } from './types';
 import CarForm from './components/CarForm';
 import CarList from './components/CarList';
 import AvailabilitySearch from './components/AvailabilitySearch';
-import { LayoutDashboard } from 'lucide-react';
+import { Car as CarIcon } from 'lucide-react';
 
 const App: React.FC = () => {
   const [cars, setCars] = useState<Car[]>([]);
@@ -51,7 +51,7 @@ const App: React.FC = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="bg-indigo-600 p-2 rounded-lg text-white shadow-lg shadow-indigo-200">
-              <LayoutDashboard className="w-6 h-6" />
+              <CarIcon className="w-6 h-6" />
             </div>
             <div>
               <h1 className="text-xl font-bold text-slate-900 tracking-tight">Gestionnaire Auto Intelligent</h1>
